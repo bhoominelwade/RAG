@@ -11,8 +11,8 @@ import numpy as np #make a function to calculate cosine similarity search
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-sentace = ["Today the weather is hot","its not raining in mumbai","I like winters"]
-sentace_embedding = model.encode(sentace)
+sentance = ["Today the weather is hot","its not raining in mumbai","I like winters"]
+sentance_embedding = model.encode(sentance)
 
 query = "How is the weather in mumbai"
 query_embedding = model.encode(query)
@@ -20,5 +20,10 @@ query_embedding = model.encode(query)
 def cosine(a,b): #function to calculate cosine similarity
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-print(cosine(sentace_embedding, query_embedding))
+for i in range(len(sentance_embedding)):
+    score = cosine(sentance_embedding[i], query_embedding)
+    print(f"{sentance[i]} => score {score}")
+    
+#for one vectore comparison   
+# print(cosine(sentace_embedding, query_embedding)) 
 
