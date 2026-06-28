@@ -21,13 +21,19 @@ chunks_embedding = model.encode(chunks)
 query = "How is the weather in mumbai"
 query_embedding = model.encode(query)
 
+results = [] 
+
 def cosine(a,b): #function to calculate cosine similarity
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 for i in range(len(chunks_embedding)):
     score = cosine(chunks_embedding[i], query_embedding)
-    print(f"{chunks[i]} => score {score}")
+    results.append([score, chunks[i]])
     
-#for one vectore comparison   
+results.sort(reverse = True)
+top_chunks = [chunk for score, chunk in results[:2]] 
+print(top_chunks)
+    
+# for one vectore comparison   
 # print(cosine(sentace_embedding, query_embedding)) 
 
