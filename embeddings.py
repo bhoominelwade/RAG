@@ -8,23 +8,30 @@ warnings.filterwarnings("ignore") #removing output noise
 
 from sentence_transformers import SentenceTransformer #convert to vectors
 import numpy as np #make a function to calculate cosine similarity search
+from dotenv import load_dotenv #load apis
+from anthropic import Anthropic
+
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
+load_dotenv()
+client = Anthropic()
+results = [] 
 
 # sentance = ["Today the weather is hot","its not raining in mumbai","I like winters"]
 # sentance_embedding = model.encode(sentance)
+
+def cosine(a,b): #function to calculate cosine similarity
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
 
 text = "weather today is hot. It is not raining in Mumbai . I like winters over summers and rain.I love to go outside. It is a cool day in Mumbai"
 chunks = text.split(".")
 chunks_embedding = model.encode(chunks)
 
-query = "How is the weather in mumbai"
+
+query = input("Ask a question: ")
 query_embedding = model.encode(query)
 
-results = [] 
-
-def cosine(a,b): #function to calculate cosine similarity
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 for i in range(len(chunks_embedding)):
     score = cosine(chunks_embedding[i], query_embedding)
@@ -32,7 +39,21 @@ for i in range(len(chunks_embedding)):
     
 results.sort(reverse = True)
 top_chunks = [chunk for score, chunk in results[:2]] 
-print(top_chunks)
+
+context = "\n".join(top_chunks)
+prompt = f"""Answer the question using only the context below.
+Context:{context}
+Question: {query}
+Answer:
+"""
+
+response = client.messages.create(
+    model="claude-haiku-4-5-20251001",
+    max_tokens = 200,
+    messages = [{'role':'user','content':prompt}]
+)
+
+print(response.content[0].text)
     
 # for one vectore comparison   
 # print(cosine(sentace_embedding, query_embedding)) 
