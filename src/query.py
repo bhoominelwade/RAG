@@ -11,21 +11,21 @@ import numpy as np #make a function to calculate cosine similarity search
 from dotenv import load_dotenv #load apis
 from anthropic import Anthropic
 
+# this file is to retreive chunks and embeddings from files and give llm to answer
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
 load_dotenv()
 client = Anthropic() #retrives api from env
-results = [] 
+model = SentenceTransformer('all-MiniLM-L6-v2')
+results = []
 
-
-text = "weather today is hot. It is not raining in Mumbai . I like winters over summers and rain.I love to go outside. It is a cool day in Mumbai"
-chunks = text.split(".")
-chunks_embedding = model.encode(chunks)
-
-
+# retrieve chunks and embeddings
+chunks_embedding = np.load("../data/embedding.npy")
+with open("../data/chunks.txt", "r", encoding="utf-8") as f:
+    chunks = [line for line in f.read().split("\n") if line.strip()]
+    
+   
 query = input("Ask a question: ")
 query_embedding = model.encode(query)
-
 
 for i in range(len(chunks_embedding)):
     score = util.cos_sim(chunks_embedding[i], query_embedding)
@@ -48,5 +48,3 @@ response = client.messages.create(
 )
 
 print(response.content[0].text)
-    
-
