@@ -6,7 +6,7 @@ import warnings
 warnings.filterwarnings("ignore") #removing output noise
 
 
-from sentence_transformers import SentenceTransformer #convert to vectors
+from sentence_transformers import SentenceTransformer,util #convert to vectors, built in cosine lib
 import numpy as np #make a function to calculate cosine similarity search
 from dotenv import load_dotenv #load apis
 from anthropic import Anthropic
@@ -14,14 +14,8 @@ from anthropic import Anthropic
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 load_dotenv()
-client = Anthropic()
+client = Anthropic() #retrives api from env
 results = [] 
-
-# sentance = ["Today the weather is hot","its not raining in mumbai","I like winters"]
-# sentance_embedding = model.encode(sentance)
-
-def cosine(a,b): #function to calculate cosine similarity
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 
 text = "weather today is hot. It is not raining in Mumbai . I like winters over summers and rain.I love to go outside. It is a cool day in Mumbai"
@@ -34,7 +28,7 @@ query_embedding = model.encode(query)
 
 
 for i in range(len(chunks_embedding)):
-    score = cosine(chunks_embedding[i], query_embedding)
+    score = util.cos_sim(chunks_embedding[i], query_embedding)
     results.append([score, chunks[i]])
     
 results.sort(reverse = True)
@@ -55,6 +49,4 @@ response = client.messages.create(
 
 print(response.content[0].text)
     
-# for one vectore comparison   
-# print(cosine(sentace_embedding, query_embedding)) 
 
